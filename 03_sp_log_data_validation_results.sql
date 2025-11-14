@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE DATA_QUALITY_EXPECTATION_RESULTS (
+CREATE OR REPLACE TABLE DATA_VALIDATION_RESULTS (
   LOG_TIMESTAMP          TIMESTAMP_LTZ
 , DATABASE_NAME          VARCHAR
 , SCHEMA_NAME            VARCHAR
@@ -14,9 +14,9 @@ CREATE OR REPLACE TABLE DATA_QUALITY_EXPECTATION_RESULTS (
 , OBJECT_NAME            VARCHAR
 )
 ;
-SELECT * FROM DATA_QUALITY_EXPECTATION_RESULTS;
+SELECT * FROM DATA_VALIDATION_RESULTS;
 
-CREATE OR REPLACE PROCEDURE sp_log_data_quality_expectation_results(
+CREATE OR REPLACE PROCEDURE sp_log_data_validation_results(
   LOG_TIMESTAMP TIMESTAMP_LTZ
 , TABLE_FULL_PATH VARCHAR
 )
@@ -41,7 +41,7 @@ try {
   // get data quality check results and insert to log table
   // include all results - TRUE and FALSE
   var insert_select_sql = 
-    "INSERT INTO DATA_QUALITY_EXPECTATION_RESULTS " +
+    "INSERT INTO DATA_VALIDATION_RESULTS " +
     "SELECT " +
     "  ? " +                      // 1. log_timestamp (Bind)
     ", ? " +                      // 2. db_name (Bind)
@@ -75,6 +75,6 @@ try {
 }
 $$;
 
-CALL sp_log_data_quality_expectation_results(CURRENT_TIMESTAMP, 'SLIU_DB.PUBLIC.T1');
+CALL sp_log_data_validation_results(CURRENT_TIMESTAMP, 'SLIU_DB.PUBLIC.T1');
 
-SELECT * FROM DATA_QUALITY_EXPECTATION_RESULTS;
+SELECT * FROM DATA_VALIDATION_RESULTS;
