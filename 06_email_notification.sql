@@ -86,7 +86,24 @@ try {
     } catch (err) {
         return `Error: Failed to query config table ${CONFIG_TABLE}. Details: ${err.message}`;
     }
-    
+    var html_text = "";
+    var query_text = `SELECT '${TABLE_FULL_PATH}' AS TABLE_FULL_PATH
+                      , COALESCE(PARSE_JSON(ARGUMENTS)[0]:domain::STRING, 'TABLE') AS OBJECT_TYPE
+                      , PARSE_JSON(ARGUMENTS)[0]:name::STRING AS COLUMN_NAME
+                      , METRIC_DATABASE||'.'||METRIC_SCHEMA||'.'||METRIC_NAME AS DATA_METRIC_FUNCTION
+                      , EXPECTATION_NAME, EXPECTATION_EXPRESSION, VALUE AS ACTUAL_VALUE, EXPECTATION_VIOLATED
+                      FROM TABLE(SYSTEM$EVALUATE_DATA_QUALITY_EXPECTATIONS(REF_ENTITY_NAME => '${TABLE_FULL_PATH}'))
+                      WHERE EXPECTATION_VIOLATED::BOOLEAN = TRUE`;
+    var call_sql = "CALL sp_query_to_html(:1)";
+    var stmt = snowflake.execute({
+        sqlText: call_sql,
+        binds: [query_text]
+    });
+    stmt.next(); 
+    var html_output = stmt.getColumnValue(1);
+    html_text += html_output;
+    html_text += `<br><br><br>`;
+
     var exception_table_name = TABLE_FULL_PATH + EXCEPTION_TABLE_SUFFIX;
     var query_text = `SELECT * FROM ${exception_table_name}`;
 
@@ -97,6 +114,7 @@ try {
     });
     stmt.next(); 
     var html_output = stmt.getColumnValue(1);
+    html_text += html_output;
     
     var email_subject = `Data Quality Exceptions Violated: ${TABLE_FULL_PATH}`;
     
@@ -112,7 +130,7 @@ try {
         `;
         var email_stmt = snowflake.createStatement({
             sqlText: send_email_query,
-            binds: [email_recipients, email_subject, html_output]
+            binds: [email_recipients, email_subject, html_text]
         });
         email_stmt.execute();
         
