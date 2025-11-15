@@ -116,7 +116,7 @@ try {
     var html_output = stmt.getColumnValue(1);
     html_text += html_output;
     
-    var email_subject = `Data Quality Exceptions Violated: ${TABLE_FULL_PATH}`;
+    var email_subject = `Data Quality Exceptions Violated: ${TABLE_FULL_PATH} - ${new Date().toISOString()}`;
     
     try {
         var send_email_query = `
