@@ -9,14 +9,14 @@ ALTER TABLE T1
 
 ALTER TABLE T1
 ADD DATA METRIC FUNCTION SNOWFLAKE.CORE.ROW_COUNT ON ()
-  EXECUTE AS ROLE SUPPORT_ROLE;  -- optional: if DMF to be operated by a role with SELECT privilege but no ownership
-  EXPECTATION exp_not_empty (VALUE > 0)
+  EXECUTE AS ROLE SUPPORT_ROLE  -- optional: if DMF to be operated by a role with SELECT privilege but no ownership
+  EXPECTATION exp_not_empty (VALUE > 0);
 ;
 
 ALTER TABLE T1
 ADD DATA METRIC FUNCTION SNOWFLAKE.CORE.NULL_COUNT ON (C2)
-  EXECUTE AS ROLE SUPPORT_ROLE;  -- optional: if DMF to be operated by a role with SELECT privilege but no ownership
-  EXPECTATION exp_zero_null (VALUE = 0)
+  EXECUTE AS ROLE SUPPORT_ROLE  -- optional: if DMF to be operated by a role with SELECT privilege but no ownership
+  EXPECTATION exp_zero_null (VALUE = 0);
 ;
 
 -- check DMF association
